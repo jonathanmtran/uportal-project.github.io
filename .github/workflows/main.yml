@@ -35,4 +35,4 @@ jobs:
       - name: Build and deploy
         if: github.ref == 'refs/heads/main'
         run: |
-          mkdocs gh-deploy --force
+          mkdocs gh-deploy

@@ -5,6 +5,9 @@ repo_url: https://github.com/uPortal-Project/uportal-project.github.io
 edit_uri: 'edit/main/docs'
 nav:
   - 'index.md'
+  - 'getting-started.md'
+  - 'portlets/index.md'
+  - 'web-components/index.md'
   - Reports: 'reports/README.md'
   - uPortal Steering Committee Meetings: 'governance/meetings/README.md'
-  - connect.md
+  - 'connect.md'

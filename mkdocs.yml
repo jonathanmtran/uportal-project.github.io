@@ -1,0 +1,10 @@
+site_name: uPortal Project
+site_url: https://uPortal-Project.github.io
+theme: readthedocs
+repo_url: https://github.com/uPortal-Project/uportal-project.github.io
+edit_uri: 'edit/main/docs'
+nav:
+  - 'index.md'
+  - Reports: 'reports/README.md'
+  - uPortal Steering Committee Meetings: 'governance/meetings/README.md'
+  - connect.md

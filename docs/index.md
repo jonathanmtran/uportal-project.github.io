@@ -1,0 +1,3 @@
+## Welcome to the uPortal Project
+
+uPortal is the leading open source enterprise portal framework built by and for the higher education community. uPortal continues to evolve through contributions from its global community and is supported by resources, grants, donations, and memberships fees from academic institutions, commercial affiliates, and non-profit foundations. uPortal is built on open standards-based technologies such as Java and XML, and enables easy, standards-based integration with authentication and security infrastructures, single sign-on secure access, campus applications, web-based content, and end user customization. uPortal can easily integrate with other enterprise systems and can be customized for specific local needs.

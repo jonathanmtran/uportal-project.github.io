@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="canonical" href="https://uPortal-Project.github.io/developer/maven-release-process/">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Releasing Components in the uPortal Ecosystem via Maven - uPortal Project</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Releasing Components in the uPortal Ecosystem via Maven";
+    var mkdocs_page_input_path = "developer/maven-release-process.md";
+    var mkdocs_page_url = "/developer/maven-release-process/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> uPortal Project</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../portlets/">Portlets</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../web-components/">Web Components</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../reports/">Reports</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../governance/meetings/">uPortal Steering Committee Meetings</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../connect/">Connect</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">uPortal Project</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Releasing Components in the uPortal Ecosystem via Maven</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/uPortal-Project/uportal-project.github.io/edit/main/docs/developer/maven-release-process.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="releasing-components-in-the-uportal-ecosystem-via-maven">Releasing Components in the uPortal Ecosystem via Maven</h1>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>There are 3 prerequisites to cutting maven releases:</p>
+<ol>
+<li><a href="https://issues.sonatype.org/secure/Signup!default.jspa">JIRA Account at Sonatype</a></li>
+<li>Permissions at Sonatype to release projects<ul>
+<li>This is granted via a Jira ticket from a uPortal committer</li>
+</ul>
+</li>
+<li><a href="https://central.sonatype.org/pages/working-with-pgp-signatures.html">Set up public PGP key on a server</a><ul>
+<li>Generate a key pair <code>gpg2 --gen-key</code></li>
+<li>If you choose to have an expiration date, edit the key via <code>gpg2 --edit-key {key ID}</code></li>
+<li>Determine the key ID and keyring file <code>gpg2 --list-keys</code> (the key ID is the <code>pub</code> ID)</li>
+<li>Distribute your public key <code>gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys {key ID}</code></li>
+</ul>
+</li>
+</ol>
+<h2 id="setup">Setup</h2>
+<p>Export your secret keyring via <code>gpg2 --keyring secring.gpg --export-secret-keys &gt; ~/.gnupg/secring.gpg</code></p>
+<p>Create a Sonatype user token via <a href="https://oss.sonatype.org">https://oss.sonatype.org</a> &gt; Profile &gt; User Tokens</p>
+<p>In <code>$HOME/.m2/settings.xml</code>, configure Maven with your Sonatype user token:</p>
+<pre><code class="language-xml">&lt;settings&gt;
+    &lt;servers&gt;
+        &lt;server&gt;
+            &lt;id&gt;sonatype-nexus-staging&lt;/id&gt;
+            &lt;username&gt;user_token_name&lt;/username&gt;
+            &lt;password&gt;user_token_pw&lt;/password&gt;
+        &lt;/server&gt;
+    &lt;/servers&gt;
+&lt;/settings&gt;
+</code></pre>
+<p>Setup is only required to be done once.</p>
+<h2 id="which-repo">Which Repo?</h2>
+<p>We encourage performing releases directly from a clone of the official repository rather than a fork to avoid extra steps.</p>
+<p>This means when testing on <code>uPortal-start</code> for the release, you should use the <code>apereo</code> repository but configure the version of the component (eg the Bookmarks or Announcements portlet) to be the <code>SNAPSHOT</code> version that you'll build in the following steps.</p>
+<h2 id="testing">Testing</h2>
+<p>Build a clean version of <code>uPortal-start</code> with the quickstart data set and perform at least light testing, especially around features that have been fixed or enhanced.</p>
+<h3 id="prepare-for-testing">Prepare For Testing</h3>
+<p>Check the styling:</p>
+<pre><code class="language-sh">$ mvn notice:generate
+$ mvn license:format
+$ mvn javadoc:fix
+</code></pre>
+<p>Review any changes from the styling tasks and commit them.</p>
+<p>If you run into issues with the Maven task not finding licenses for dependencies, Maven will create a dependency mapping file that you should fold into the primary <code>license-mapping.xml</code> file located at <a href="https://github.com/Jasig/apereo-parent/blob/master/licenses/license-mappings.xml">https://github.com/Jasig/apereo-parent/blob/master/licenses/license-mappings.xml</a>.</p>
+<p>Install the build locally:</p>
+<pre><code class="language-sh">$ mvn clean install
+</code></pre>
+<p>Ideally, committers will be running the <code>mvn</code> <code>notice</code>, <code>license</code>, and <code>javadoc</code> before they commit changes to the repo.  If there are changes needed, review the differences, and then commit to <code>master</code>:</p>
+<pre><code class="language-sh">$ git commit -am &quot;chore: pre-release prep&quot;
+</code></pre>
+<p>Point your uPortal-start to the local component build:
+Using the component's version, configure uPortal-start to pick it up in <code>.../apereo/uPortal-start/gradle.properties</code>.</p>
+<p>For example, if you are building version <code>3.5.1-SNAPSHOT</code> of the Bookmarks portlet, you'd configure <code>.../apereo/uPortal-start/gradle.properties</code> with <code>bookmarksPortletVersion=3.5.1-SNAPSHOT</code>.</p>
+<p>Run uPortal-start with the local build</p>
+<pre><code class="language-sh">$ ./gradlew clean portalInit
+</code></pre>
+<h3 id="verify">Verify</h3>
+<ul>
+<li>Unit tests are automatically run on commits, so ensure the latest commit's CI build passed.</li>
+<li>FUTURE - Need to run the cross browser platform tests and the performance tests</li>
+<li>Smoke test the UI manually of the component</li>
+<li>Pay attention to new changes</li>
+</ul>
+<h2 id="cut-release">Cut Release</h2>
+<p>If you had to commit changes for the styling, push them to the repo.</p>
+<p>Run the following command in the directory of the component's clone.  If this is your first time, run each <code>release:</code> command separately so if there's a failure in the process, it'll be easier to diagnose and restart.</p>
+<pre><code class="language-sh">$ mvn release:clean release:prepare release:perform
+</code></pre>
+<p>:Note: During the <code>release</code> tasks, you will be prompted for a release version (e.g. <code>3.5.1</code>), release tag, and new development version.  Press <code>Enter</code> for the defaults.  The release process will then create two commits - a commit to set the new version (<code>3.5.1</code>), and a commit to set the version to the new snapshot (<code>3.5.2-SNAPSHOT</code>)</p>
+<h2 id="close-and-release-from-nexus-staging-repository">Close and Release from Nexus Staging Repository</h2>
+<p>Close the release in Sonatype to ensure the pushed Maven artifacts pass checks:
+1. Log into <a href="https://oss.sonatype.org">https://oss.sonatype.org</a>
+2. Search among <code>Build Promotion</code> &gt; <code>Staging Repositories</code> for your username
+3. Review the release for the expected artifacts
+4. Select the uPortal artifact you staged and hit "Close"
+  - The lifecycle is <code>Open --&gt; Closed --&gt; Released</code>
+5. Wait a few minutes for the component's artifact to close
+6. Release the artifact, and put the tag name in the description
+  - Leave 'Automatically Drop' checked.</p>
+<h2 id="create-release-notes">Create Release Notes</h2>
+<ol>
+<li>Use Git to inspect the incremental commits since the last release (e.g. <code>$ git log v3.5.0..3.5.1 --no-merges</code>)</li>
+<li>Review the issue tracker and confirm that the referenced issues have been Resolved</li>
+<li>Enter the release notes on the GitHub releases page in the component's repo</li>
+<li>It's helpful to use the previous release notes as a guide</li>
+<li>Each commit type goes into a sub section with the type as a header (Fixes, Chores, Features, etc...).</li>
+</ol>
+<h2 id="update-uportal-start">Update uPortal-start</h2>
+<p>Open a Pull Request on <code>uPortal-start</code> to update the version of the newly released component.  Do a quick smoke test to ensure it built:</p>
+<pre><code class="language-sh">$ cd {uPortal-start repo}
+$ ./gradlew tomcatStop
+.../uPortal-start$ ./gradlew clean tomcatDeploy
+.../uPortal-start$ ./gradlew tomcatStart
+</code></pre>
+<h2 id="publish-new-docker-demo-of-quickstart">Publish new docker demo of Quickstart</h2>
+<p>Publish a new apereo/uPortal-demo Docker image and update the <code>:latest</code> tag.
+Prerequisites:
+  - Docker Cloud account (<a href="https://cloud.docker.com">https://cloud.docker.com</a>)
+  - Access to post to the apereo Docker group
+  - The uPortal version has been added to <code>uPortal-start</code></p>
+<pre><code class="language-sh">$ cd {uPortal-start repo}
+$ ./gradlew dockerBuildImageDemo
+$ docker login
+$ docker tag {version in format like 5.1.0} apereo/uportal-demo:latest
+$ docker push apereo/uportal-demo:latest
+</code></pre>
+<h2 id="update-community">Update Community</h2>
+<p>For any non-snapshot release, email an announcement to <a href="https://groups.google.com/a/apereo.org/forum/#!forum/uportal-dev"><code>uportal-dev</code></a> and <a href="https://groups.google.com/a/apereo.org/forum/#!forum/uportal-user"><code>uportal-user</code></a>.
+  - Be sure to acknowledge those who contributed to the release.
+  - Be sure to put the release into context for existing adopters to understand.</p>
+<p>Have someone with access to the <a href="https://twitter.com/uportal">uPortal Twitter account</a> announce the release.</p>
+<h2 id="references">References</h2>
+<p>(<a href="https://apereo.atlassian.net/wiki/spaces/UPC/pages/102336655/Cutting+a+uPortal+Release">https://apereo.atlassian.net/wiki/spaces/UPC/pages/102336655/Cutting+a+uPortal+Release</a>)
+(<a href="https://central.sonatype.org/pages/ossrh-guide.html">https://central.sonatype.org/pages/ossrh-guide.html</a>)
+(<a href="https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials">https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials</a>)</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/uPortal-Project/uportal-project.github.io/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
